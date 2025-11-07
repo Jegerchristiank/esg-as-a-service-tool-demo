@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- Migreret wizard-persistence til PostgreSQL med Drizzle ORM, migrations og et engangsscript til import af eksisterende JSON-data.
 - Password-beskyttet adgangsflow for webappen med middleware, `/access`-side og Playwright-helper til login.
 - Baseline quality report capturing current install, lint, typecheck, test and build status.
 - Architectural decision record describing the new shared configuration packages.

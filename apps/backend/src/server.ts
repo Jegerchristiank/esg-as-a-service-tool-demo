@@ -1,11 +1,12 @@
 import { createServer } from 'node:http'
+import { once } from 'node:events'
 
 import { TokenAuthenticator } from './auth/tokenAuth'
-import { ensureDataFileExists, loadEnvironment } from './env'
-import { FileRepository } from './persistence/fileRepository'
+import { loadEnvironment } from './env'
+import { DatabaseRepository } from './persistence/databaseRepository'
 import { WizardPersistenceService } from './persistence/wizardService'
-
 import type { PersistedWizardStorage, WizardPersistenceSnapshot } from '@org/shared/wizard/persistence'
+import { Pool } from 'pg'
 import type { IncomingMessage, ServerResponse } from 'node:http'
 
 async function readJsonBody<T>(req: IncomingMessage): Promise<T | null> {
@@ -33,10 +34,10 @@ function respond(res: ServerResponse, statusCode: number, payload: unknown): voi
 }
 
 const environment = loadEnvironment()
-ensureDataFileExists(environment.dataFile)
-const authenticator = new TokenAuthenticator(environment)
-const repository = new FileRepository(environment.dataFile)
+const pool = new Pool({ connectionString: environment.databaseUrl })
+const repository = new DatabaseRepository(pool)
 const service = new WizardPersistenceService(repository)
+const authenticator = new TokenAuthenticator(environment)
 
 const server = createServer(async (req, res) => {
   if (!req.url || !req.method) {
@@ -56,14 +57,18 @@ const server = createServer(async (req, res) => {
   }
 
   if (req.url === '/wizard/snapshot' && req.method === 'GET') {
-    const document = service.load()
-    const payload: WizardPersistenceSnapshot = {
-      storage: document.storage,
-      auditLog: document.auditLog,
-      permissions: auth.permissions,
-      user: auth.user,
+    try {
+      const document = await service.load()
+      const payload: WizardPersistenceSnapshot = {
+        storage: document.storage,
+        auditLog: document.auditLog,
+        permissions: auth.permissions,
+        user: auth.user,
+      }
+      respond(res, 200, payload)
+    } catch (error) {
+      respond(res, 500, { error: (error as Error).message })
     }
-    respond(res, 200, payload)
     return
   }
 
@@ -79,7 +84,7 @@ const server = createServer(async (req, res) => {
         respond(res, 400, { error: 'Request mangler storage-objekt' })
         return
       }
-      const document = service.save(body.storage, auth.user.id)
+      const document = await service.save(body.storage, auth.user.id)
       const payload: WizardPersistenceSnapshot = {
         storage: document.storage,
         auditLog: document.auditLog,
@@ -98,4 +103,26 @@ const server = createServer(async (req, res) => {
 
 server.listen(environment.port, () => {
   console.log(`Wizard persistence API lytter på http://localhost:${environment.port}`)
+})
+
+async function shutdown(): Promise<void> {
+  console.log('Modtog shutdown-signal, lukker serveren...')
+  server.close()
+  await once(server, 'close')
+  await repository.dispose()
+  console.log('Wizard persistence API lukket')
+}
+
+process.on('SIGTERM', () => {
+  void shutdown().catch((error) => {
+    console.error('Fejl ved shutdown', error)
+    process.exitCode = 1
+  })
+})
+
+process.on('SIGINT', () => {
+  void shutdown().catch((error) => {
+    console.error('Fejl ved shutdown', error)
+    process.exitCode = 1
+  })
 })

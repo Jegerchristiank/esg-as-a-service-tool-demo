@@ -9,15 +9,21 @@
     "start": "node dist/server.js",
     "test": "vitest run",
     "lint": "eslint --ext .ts src",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "drizzle-kit migrate"
   },
   "dependencies": {
-    "@org/shared": "workspace:*"
+    "@org/shared": "workspace:*",
+    "drizzle-orm": "^0.44.7",
+    "pg": "^8.16.3"
   },
   "devDependencies": {
     "@org/eslint-config": "workspace:*",
     "@org/tsconfig": "workspace:*",
     "@types/node": "^20.11.30",
-    "eslint": "^8.57.0"
+    "drizzle-kit": "^0.31.6",
+    "eslint": "^8.57.0",
+    "tsx": "^4.20.6"
   }
 }

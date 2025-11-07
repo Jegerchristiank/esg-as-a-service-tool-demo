@@ -1,4 +1,6 @@
-import type { WizardPersistenceDocument } from './fileRepository'
+import { randomUUID } from 'node:crypto'
+
+import type { WizardPersistenceDocument } from './document'
 import type {
   PersistedWizardProfile,
   PersistedWizardStorage,
@@ -8,8 +10,8 @@ import type {
 } from '@org/shared/wizard/persistence'
 
 export interface WizardPersistenceRepository {
-  read(): WizardPersistenceDocument
-  write(document: WizardPersistenceDocument): void
+  read(): Promise<WizardPersistenceDocument>
+  write(document: WizardPersistenceDocument): Promise<void>
 }
 
 function cloneHistory(history: WizardFieldHistory | undefined, userId: string): WizardFieldHistory {
@@ -90,15 +92,31 @@ function nextVersion(previous: PersistedWizardProfile | undefined, hasChanges: b
   return hasChanges ? baseVersion + 1 : baseVersion
 }
 
+function createAuditEntry(
+  profileId: string,
+  userId: string,
+  version: number,
+  changes: WizardAuditChange[],
+): WizardAuditLogEntry {
+  return {
+    id: `${profileId}-${randomUUID()}`,
+    profileId,
+    timestamp: new Date().toISOString(),
+    userId,
+    version,
+    changes,
+  }
+}
+
 export class WizardPersistenceService {
   constructor(private readonly repository: WizardPersistenceRepository) {}
 
-  load(): WizardPersistenceDocument {
+  async load(): Promise<WizardPersistenceDocument> {
     return this.repository.read()
   }
 
-  save(nextStorage: PersistedWizardStorage, userId: string): WizardPersistenceDocument {
-    const document = this.repository.read()
+  async save(nextStorage: PersistedWizardStorage, userId: string): Promise<WizardPersistenceDocument> {
+    const document = await this.repository.read()
     const previousProfiles: Record<string, PersistedWizardProfile> = document.storage.profiles
     const nextProfiles: Record<string, PersistedWizardProfile> = {}
     const auditEntries: WizardAuditLogEntry[] = []
@@ -123,14 +141,7 @@ export class WizardPersistenceService {
       nextProfiles[profileId] = normalised
 
       if (hasChanges) {
-        auditEntries.push({
-          id: `${profileId}-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
-          profileId,
-          timestamp: new Date().toISOString(),
-          userId,
-          version,
-          changes,
-        })
+        auditEntries.push(createAuditEntry(profileId, userId, version, changes))
       }
     }
 
@@ -140,20 +151,15 @@ export class WizardPersistenceService {
     ][]) {
       if (!nextProfiles[profileId]) {
         const version = (previous.version ?? 0) + 1
-        auditEntries.push({
-          id: `${profileId}-${Date.now()}-deleted`,
-          profileId,
-          timestamp: new Date().toISOString(),
-          userId,
-          version,
-          changes: [
+        auditEntries.push(
+          createAuditEntry(profileId, userId, version, [
             {
               field: '__deleted__',
               previous,
               next: null,
             },
-          ],
-        })
+          ]),
+        )
       }
     }
 
@@ -170,7 +176,7 @@ export class WizardPersistenceService {
       auditLog: [...document.auditLog, ...auditEntries],
     }
 
-    this.repository.write(updatedDocument)
+    await this.repository.write(updatedDocument)
     return updatedDocument
   }
 }
