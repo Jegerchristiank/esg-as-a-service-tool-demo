@@ -11,7 +11,11 @@ import type {
 
 export interface WizardPersistenceRepository {
   read(): Promise<WizardPersistenceDocument>
-  write(document: WizardPersistenceDocument): Promise<void>
+  update(
+    mutator: (document: WizardPersistenceDocument) =>
+      | WizardPersistenceDocument
+      | Promise<WizardPersistenceDocument>,
+  ): Promise<WizardPersistenceDocument>
 }
 
 function cloneHistory(history: WizardFieldHistory | undefined, userId: string): WizardFieldHistory {
@@ -116,67 +120,65 @@ export class WizardPersistenceService {
   }
 
   async save(nextStorage: PersistedWizardStorage, userId: string): Promise<WizardPersistenceDocument> {
-    const document = await this.repository.read()
-    const previousProfiles: Record<string, PersistedWizardProfile> = document.storage.profiles
-    const nextProfiles: Record<string, PersistedWizardProfile> = {}
-    const auditEntries: WizardAuditLogEntry[] = []
+    return this.repository.update(async (document) => {
+      const previousProfiles: Record<string, PersistedWizardProfile> = document.storage.profiles
+      const nextProfiles: Record<string, PersistedWizardProfile> = {}
+      const auditEntries: WizardAuditLogEntry[] = []
 
-    const nextProfileEntries = Object.entries(nextStorage.profiles) as [
-      string,
-      PersistedWizardProfile,
-    ][]
+      const nextProfileEntries = Object.entries(nextStorage.profiles) as [
+        string,
+        PersistedWizardProfile,
+      ][]
 
-    for (const [profileId, profile] of nextProfileEntries) {
-      const previous = previousProfiles[profileId]
-      const changes = computeStateChanges(previous, profile)
-      const hasChanges = changes.length > 0
-      const version = nextVersion(previous, hasChanges)
+      for (const [profileId, profile] of nextProfileEntries) {
+        const previous = previousProfiles[profileId]
+        const changes = computeStateChanges(previous, profile)
+        const hasChanges = changes.length > 0
+        const version = nextVersion(previous, hasChanges)
 
-      const normalised: PersistedWizardProfile = {
-        ...profile,
-        version,
-        history: cloneHistory(profile.history, userId),
+        const normalised: PersistedWizardProfile = {
+          ...profile,
+          version,
+          history: cloneHistory(profile.history, userId),
+        }
+
+        nextProfiles[profileId] = normalised
+
+        if (hasChanges) {
+          auditEntries.push(createAuditEntry(profileId, userId, version, changes))
+        }
       }
 
-      nextProfiles[profileId] = normalised
-
-      if (hasChanges) {
-        auditEntries.push(createAuditEntry(profileId, userId, version, changes))
+      for (const [profileId, previous] of Object.entries(previousProfiles) as [
+        string,
+        PersistedWizardProfile,
+      ][]) {
+        if (!nextProfiles[profileId]) {
+          const version = (previous.version ?? 0) + 1
+          auditEntries.push(
+            createAuditEntry(profileId, userId, version, [
+              {
+                field: '__deleted__',
+                previous,
+                next: null,
+              },
+            ]),
+          )
+        }
       }
-    }
 
-    for (const [profileId, previous] of Object.entries(previousProfiles) as [
-      string,
-      PersistedWizardProfile,
-    ][]) {
-      if (!nextProfiles[profileId]) {
-        const version = (previous.version ?? 0) + 1
-        auditEntries.push(
-          createAuditEntry(profileId, userId, version, [
-            {
-              field: '__deleted__',
-              previous,
-              next: null,
-            },
-          ]),
-        )
+      const activeProfileId =
+        nextProfiles[nextStorage.activeProfileId] !== undefined
+          ? nextStorage.activeProfileId
+          : Object.keys(nextProfiles)[0] ?? document.storage.activeProfileId
+
+      return {
+        storage: {
+          activeProfileId,
+          profiles: nextProfiles,
+        },
+        auditLog: [...document.auditLog, ...auditEntries],
       }
-    }
-
-    const activeProfileId =
-      nextProfiles[nextStorage.activeProfileId] !== undefined
-        ? nextStorage.activeProfileId
-        : Object.keys(nextProfiles)[0] ?? document.storage.activeProfileId
-
-    const updatedDocument: WizardPersistenceDocument = {
-      storage: {
-        activeProfileId,
-        profiles: nextProfiles,
-      },
-      auditLog: [...document.auditLog, ...auditEntries],
-    }
-
-    await this.repository.write(updatedDocument)
-    return updatedDocument
+    })
   }
 }

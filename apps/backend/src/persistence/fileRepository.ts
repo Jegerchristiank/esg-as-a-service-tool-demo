@@ -27,4 +27,15 @@ export class FileRepository {
       throw new Error(`Kunne ikke skrive persistence-fil: ${(error as Error).message}`)
     }
   }
+
+  async update(
+    mutator: (document: WizardPersistenceDocument) =>
+      | WizardPersistenceDocument
+      | Promise<WizardPersistenceDocument>,
+  ): Promise<WizardPersistenceDocument> {
+    const current = await this.read()
+    const next = await mutator(current)
+    await this.write(next)
+    return next
+  }
 }

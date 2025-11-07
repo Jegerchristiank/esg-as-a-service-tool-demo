@@ -22,8 +22,15 @@ class InMemoryRepository implements WizardPersistenceRepository {
     return JSON.parse(JSON.stringify(this.document))
   }
 
-  async write(document: WizardPersistenceDocument): Promise<void> {
-    this.document = JSON.parse(JSON.stringify(document))
+  async update(
+    mutator: (document: WizardPersistenceDocument) =>
+      | WizardPersistenceDocument
+      | Promise<WizardPersistenceDocument>,
+  ): Promise<WizardPersistenceDocument> {
+    const clone = await this.read()
+    const next = await mutator(clone)
+    this.document = JSON.parse(JSON.stringify(next))
+    return JSON.parse(JSON.stringify(next))
   }
 }
 
