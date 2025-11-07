@@ -1,0 +1,15 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`createDefaultResult > returnerer forventet basisstruktur for andre moduler 1`] = `
+{
+  "assumptions": [
+    "Standardfaktor: 1",
+  ],
+  "trace": [
+    "Input(B2)=42",
+  ],
+  "unit": "point",
+  "value": 42,
+  "warnings": [],
+}
+`;

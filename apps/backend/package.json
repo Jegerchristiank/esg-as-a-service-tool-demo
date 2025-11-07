@@ -1,0 +1,23 @@
+{
+  "name": "@org/backend",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "node --watch dist/server.js",
+    "build": "tsc -p tsconfig.build.json",
+    "start": "node dist/server.js",
+    "test": "vitest run",
+    "lint": "eslint --ext .ts src",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@org/shared": "workspace:*"
+  },
+  "devDependencies": {
+    "@org/eslint-config": "workspace:*",
+    "@org/tsconfig": "workspace:*",
+    "@types/node": "^20.11.30",
+    "eslint": "^8.57.0"
+  }
+}

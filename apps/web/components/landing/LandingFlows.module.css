@@ -1,0 +1,88 @@
+.section {
+  padding: var(--space-3xl) var(--space-xl) calc(var(--space-3xl) + var(--space-xl));
+  background: var(--surface-muted);
+}
+
+.grid {
+  display: grid;
+  gap: var(--space-lg);
+}
+
+@media (min-width: 60rem) {
+  .grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.card {
+  position: relative;
+  padding: var(--space-xl);
+  border-radius: var(--radius-md);
+  background: var(--surface-raised);
+  border: 1px solid var(--border-subtle);
+  display: grid;
+  gap: var(--space-sm);
+  min-height: 14rem;
+}
+
+.card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  border: 2px solid transparent;
+  background: linear-gradient(160deg, rgba(10, 125, 85, 0.6), rgba(31, 115, 210, 0.4)) border-box;
+  -webkit-mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  opacity: 0;
+  transition: opacity 160ms ease;
+  pointer-events: none;
+}
+
+.card:hover::after,
+.card:focus-within::after {
+  opacity: 1;
+}
+
+.card h3 {
+  margin: 0;
+  font-size: var(--font-size-heading-sm);
+  display: flex;
+  gap: var(--space-sm);
+  align-items: center;
+}
+
+.card p {
+  margin: 0;
+  color: var(--text-muted);
+  line-height: var(--line-height-standard);
+}
+
+.stepIndex {
+  display: inline-flex;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 999px;
+  align-items: center;
+  justify-content: center;
+  font-weight: var(--font-weight-semibold);
+  background: var(--color-secondary-100);
+  color: var(--color-secondary-700);
+}
+
+.checklist {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: var(--space-2xs);
+  font-size: var(--font-size-body-sm);
+  color: var(--text-subtle);
+}
+
+.checklist li::before {
+  content: '✓';
+  color: var(--color-primary-600);
+  margin-right: var(--space-2xs);
+}

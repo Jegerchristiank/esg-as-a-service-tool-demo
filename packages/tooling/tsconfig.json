@@ -1,0 +1,11 @@
+{
+  "extends": "@org/tsconfig/base",
+  "compilerOptions": {
+    "outDir": "dist",
+    "rootDir": "src",
+    "incremental": true,
+    "tsBuildInfoFile": "dist/tsconfig.tsbuildinfo"
+  },
+  "include": ["src/**/*.ts"],
+  "exclude": ["dist", "node_modules"]
+}

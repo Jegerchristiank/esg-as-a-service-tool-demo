@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "extends": "@org/tsconfig/base",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "outDir": "dist",
+    "paths": {
+      "@org/shared": ["../../packages/shared/index.ts"],
+      "@org/shared/*": ["../../packages/shared/*"]
+    }
+  },
+  "include": ["src"]
+}
