@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- Migreret wizard-persistence til PostgreSQL med Drizzle ORM, migrations og et engangsscript til import af eksisterende JSON-data.
 - Password-beskyttet adgangsflow for webappen med middleware, `/access`-side og Playwright-helper til login.
 - Baseline quality report capturing current install, lint, typecheck, test and build status.
 - Architectural decision record describing the new shared configuration packages.
@@ -37,6 +38,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fuldt A4-modul for Scope 1 flugtige emissioner med schema, beregning, UI og tests.
 - Fuldt C1-modul for Scope 3 medarbejderpendling med schema, beregning, UI og tests.
 - Fuldt C2-modul for Scope 3 forretningsrejser med schema, beregning, UI og tests.
+
 - Fuldt C3-modul for Scope 3 brændstof- og energirelaterede aktiviteter med schema, beregning, UI og tests.
 - Fuldt C4-modul for Scope 3 upstream transport og distribution med schema, beregning, UI og tests.
 - Fuldt C5-modul for Scope 3 affald fra drift (upstream) med schema, beregning, UI og tests.
@@ -82,3 +84,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Cleaned B1 calculation tests to eliminate duplicate suites and reinstate deterministic assertions.
 - Ensured `next lint` bruger den understøttede TypeScript-version ved at fastlåse 5.5.4 gennem pnpm overrides.
 - Udvidede tooling-CLIens skemakonvertering til at forstå boolean- og array-typer, så GitHub CLI-testen lykkes for de nye E1-energifelter.
+- Forhindret tabte wizard-opdateringer ved at serialisere persistence-skrivninger med database-transaktioner og repository-koordination.

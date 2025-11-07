@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 
 import { WizardPersistenceService, type WizardPersistenceRepository } from './wizardService'
 
-import type { WizardPersistenceDocument } from './fileRepository'
+import type { WizardPersistenceDocument } from './document'
 import type { PersistedWizardProfile, PersistedWizardStorage } from '@org/shared/wizard/persistence'
 
 class InMemoryRepository implements WizardPersistenceRepository {
@@ -18,17 +18,24 @@ class InMemoryRepository implements WizardPersistenceRepository {
     }
   }
 
-  read(): WizardPersistenceDocument {
+  async read(): Promise<WizardPersistenceDocument> {
     return JSON.parse(JSON.stringify(this.document))
   }
 
-  write(document: WizardPersistenceDocument): void {
-    this.document = JSON.parse(JSON.stringify(document))
+  async update(
+    mutator: (document: WizardPersistenceDocument) =>
+      | WizardPersistenceDocument
+      | Promise<WizardPersistenceDocument>,
+  ): Promise<WizardPersistenceDocument> {
+    const clone = await this.read()
+    const next = await mutator(clone)
+    this.document = JSON.parse(JSON.stringify(next))
+    return JSON.parse(JSON.stringify(next))
   }
 }
 
 describe('WizardPersistenceService', () => {
-  it('gemmer nye profiler med versionsnummer og audit-log', () => {
+  it('gemmer nye profiler med versionsnummer og audit-log', async () => {
     const repository: WizardPersistenceRepository = new InMemoryRepository()
     const service = new WizardPersistenceService(repository)
 
@@ -73,7 +80,7 @@ describe('WizardPersistenceService', () => {
       },
     }
 
-    const result = service.save(storage, 'tester')
+    const result = await service.save(storage, 'tester')
 
     expect(result.storage.profiles['profile-1']?.version).toBe(1)
     expect(result.storage.profiles['profile-1']?.history['B1']?.[0]?.updatedBy).toBe('tester')
@@ -84,7 +91,7 @@ describe('WizardPersistenceService', () => {
     expect(entry.changes.some((change) => change.field === '__created__')).toBe(true)
   })
 
-  it('registrerer ændringer i audit-loggen ved opdateringer', () => {
+  it('registrerer ændringer i audit-loggen ved opdateringer', async () => {
     const createdAt = Date.now() - 1000
     const baseProfile: PersistedWizardProfile = {
       id: 'profile-1',
@@ -141,7 +148,7 @@ describe('WizardPersistenceService', () => {
       profiles: { 'profile-1': updatedProfile },
     }
 
-    const result = service.save(storage, 'auditor')
+    const result = await service.save(storage, 'auditor')
 
     expect(result.auditLog).toHaveLength(1)
     const entry = result.auditLog[0]!

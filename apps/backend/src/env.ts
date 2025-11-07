@@ -1,5 +1,7 @@
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs'
-import { resolve, dirname } from 'node:path'
+import { dirname, resolve } from 'node:path'
+
+import type { WizardPersistenceDocument } from './persistence/document'
 
 type TokenDescriptor = {
   token: string
@@ -9,6 +11,7 @@ type TokenDescriptor = {
 
 export type Environment = {
   port: number
+  databaseUrl: string
   dataFile: string
   tokens: TokenDescriptor[]
 }
@@ -36,12 +39,27 @@ function loadTokenRegistry(raw: string | undefined): TokenDescriptor[] {
     .filter((descriptor): descriptor is TokenDescriptor => descriptor !== null)
 }
 
+const INITIAL_DOCUMENT: WizardPersistenceDocument = {
+  storage: {
+    activeProfileId: 'default',
+    profiles: {},
+  },
+  auditLog: [],
+}
+
 export function loadEnvironment(): Environment {
   const port = Number.parseInt(process.env['PERSISTENCE_PORT'] ?? '4010', 10)
-  const dataFile = resolve(process.cwd(), process.env['PERSISTENCE_DATA_FILE'] ?? './data/wizard-store.json')
+  const databaseUrl = process.env['PERSISTENCE_DATABASE_URL']
+  if (!databaseUrl) {
+    throw new Error('PERSISTENCE_DATABASE_URL skal være sat')
+  }
+  const dataFile = resolve(
+    process.cwd(),
+    process.env['PERSISTENCE_DATA_FILE'] ?? './data/wizard-store.json',
+  )
   const tokens = loadTokenRegistry(process.env['PERSISTENCE_TOKENS'])
 
-  return { port, dataFile, tokens }
+  return { port, databaseUrl, dataFile, tokens }
 }
 
 export function ensureDataFileExists(path: string): void {
@@ -49,19 +67,8 @@ export function ensureDataFileExists(path: string): void {
     readFileSync(path)
   } catch (error) {
     if ((error as NodeJS.ErrnoException).code === 'ENOENT') {
-      const initialPayload = JSON.stringify(
-        {
-          storage: {
-            activeProfileId: 'default',
-            profiles: {},
-          },
-          auditLog: [],
-        },
-        null,
-        2,
-      )
       mkdirSync(dirname(path), { recursive: true })
-      writeFileSync(path, initialPayload, { encoding: 'utf-8' })
+      writeFileSync(path, JSON.stringify(INITIAL_DOCUMENT, null, 2), { encoding: 'utf-8' })
       return
     }
     throw error
