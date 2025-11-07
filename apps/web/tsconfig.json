@@ -1,42 +1,10 @@
 {
-  "extends": "@org/tsconfig/base",
+  "extends": "../../tsconfig.base.json",
   "compilerOptions": {
-    "jsx": "preserve",
-    "moduleResolution": "Bundler",
-    "allowJs": false,
-    "noEmit": true,
     "baseUrl": ".",
-    "paths": {
-      "@org/shared": ["../../packages/shared/index.ts"],
-      "@org/shared/*": ["../../packages/shared/*"],
-      "@org/shared/wizard/persistence": [
-        "../../packages/shared/wizard/persistence.ts"
-      ]
-    },
-    "types": [
-      "node",
-      "vitest/globals"
-    ],
-    "lib": [
-      "dom",
-      "dom.iterable",
-      "esnext"
-    ],
-    "incremental": true,
-    "isolatedModules": true,
-    "plugins": [
-      {
-        "name": "next"
-      }
-    ]
+    "types": ["node"],
+    "plugins": [{ "name": "next" }]
   },
-  "include": [
-    "next-env.d.ts",
-    "**/*.ts",
-    "**/*.tsx",
-    ".next/types/**/*.ts"
-  ],
-  "exclude": [
-    "node_modules"
-  ]
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
+  "exclude": ["node_modules"]
 }
