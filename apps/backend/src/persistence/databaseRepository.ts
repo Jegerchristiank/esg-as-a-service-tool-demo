@@ -1,11 +1,12 @@
 import { asc } from 'drizzle-orm'
 import { drizzle, type NodePgDatabase } from 'drizzle-orm/node-postgres'
-import { Pool } from 'pg'
+
+import * as schema from './schema'
 
 import type { WizardPersistenceDocument } from './document'
-import * as schema from './schema'
-import type { PersistedWizardProfile, WizardAuditLogEntry } from '@org/shared/wizard/persistence'
 import type { WizardPersistenceRepository } from './wizardService'
+import type { PersistedWizardProfile, WizardAuditLogEntry } from '@org/shared/wizard/persistence'
+import type { Pool } from 'pg'
 
 type WizardProfileRow = typeof schema.wizardProfiles.$inferSelect
 type WizardProfileInsert = typeof schema.wizardProfiles.$inferInsert

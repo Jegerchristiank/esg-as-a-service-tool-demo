@@ -1,4 +1,5 @@
 import { bigint, index, integer, jsonb, pgTable, text, timestamp } from 'drizzle-orm/pg-core'
+
 import type { ModuleInput } from '@org/shared/types'
 import type {
   WizardAuditChange,

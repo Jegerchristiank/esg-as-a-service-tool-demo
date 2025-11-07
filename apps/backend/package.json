@@ -22,6 +22,7 @@
     "@org/eslint-config": "workspace:*",
     "@org/tsconfig": "workspace:*",
     "@types/node": "^20.11.30",
+    "@types/pg": "^8.15.6",
     "drizzle-kit": "^0.31.6",
     "eslint": "^8.57.0",
     "tsx": "^4.20.6"

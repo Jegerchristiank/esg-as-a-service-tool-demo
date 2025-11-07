@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 
 import { WizardPersistenceService, type WizardPersistenceRepository } from './wizardService'
+
 import type { WizardPersistenceDocument } from './document'
 import type { PersistedWizardProfile, PersistedWizardStorage } from '@org/shared/wizard/persistence'
 
