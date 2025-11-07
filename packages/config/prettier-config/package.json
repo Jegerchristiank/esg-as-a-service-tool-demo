@@ -1,8 +1,0 @@
-{
-  "name": "@org/prettier-config",
-  "version": "0.0.1",
-  "private": true,
-  "type": "commonjs",
-  "main": "index.cjs",
-  "files": ["index.cjs"]
-}

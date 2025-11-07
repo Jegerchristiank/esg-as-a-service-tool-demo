@@ -1,29 +1,19 @@
 {
-  "name": "@org/monorepo",
+  "name": "esg-as-a-service-tool",
   "private": true,
   "packageManager": "pnpm@10.17.1",
   "scripts": {
-    "dev": "turbo run dev --parallel",
-    "build": "turbo run build",
-    "test": "turbo run test",
-    "lint": "turbo run lint",
-    "typecheck": "turbo run typecheck",
+    "dev": "pnpm --filter web dev",
+    "build": "pnpm --filter web build",
+    "start": "pnpm --filter web start",
+    "lint": "pnpm --filter web lint",
+    "typecheck": "pnpm --filter web typecheck",
+    "test": "pnpm --filter web test",
     "format": "prettier -w .",
     "format:check": "prettier -c ."
   },
   "devDependencies": {
-    "@org/eslint-config": "workspace:*",
-    "@org/prettier-config": "workspace:*",
-    "@org/tsconfig": "workspace:*",
-    "@types/node": "^20.11.30",
-    "playwright": "^1.48.0",
-    "turbo": "^2.1.1",
-    "typescript": "~5.5.4",
-    "vitest": "^3.2.4"
-  },
-  "pnpm": {
-    "overrides": {
-      "typescript": "5.5.4"
-    }
+    "prettier": "^3.3.3",
+    "typescript": "~5.5.4"
   }
 }

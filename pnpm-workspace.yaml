@@ -1,5 +1,2 @@
 packages:
-  - apps/*
-  - packages/*
-  - packages/config/*
-  - tooling
+  - apps/web

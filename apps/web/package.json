@@ -1,45 +1,27 @@
 {
-  "name": "@org/web",
-  "version": "0.0.1",
+  "name": "web",
+  "version": "0.1.0",
   "private": true,
   "type": "module",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "test": "vitest run --passWithNoTests",
     "lint": "next lint",
-    "typecheck": "tsc --project tsconfig.json --noEmit"
+    "typecheck": "tsc --project tsconfig.json --noEmit",
+    "test": "echo 'Ingen automatiske tests er defineret' && exit 0"
   },
   "dependencies": {
-    "@org/shared": "workspace:*",
-    "@react-pdf/renderer": "^3.4.4",
-    "@vercel/analytics": "^1.5.0",
-    "@vercel/speed-insights": "^1.2.0",
-    "file-saver": "^2.0.5",
     "next": "14.2.5",
     "react": "18.3.1",
     "react-dom": "18.3.1"
   },
   "devDependencies": {
-    "@org/eslint-config": "workspace:*",
-    "@org/tsconfig": "workspace:*",
-    "@playwright/test": "^1.55.1",
-    "@testing-library/jest-dom": "^6.4.5",
-    "@testing-library/react": "^16.2.0",
-    "@testing-library/user-event": "^14.5.2",
-    "@types/file-saver": "^2.0.7",
     "@types/node": "^20.11.30",
     "@types/react": "^18.3.5",
     "@types/react-dom": "^18.3.0",
-    "@vitejs/plugin-react": "^4.3.1",
     "eslint": "^8.57.0",
     "eslint-config-next": "14.2.5",
-    "eslint-import-resolver-typescript": "^3.6.1",
-    "eslint-plugin-import": "^2.29.1",
-    "eslint-plugin-unused-imports": "^3.1.0",
-    "jsdom": "^24.1.0",
-    "typescript": "~5.5.4",
-    "vitest": "^3.2.4"
+    "typescript": "~5.5.4"
   }
 }

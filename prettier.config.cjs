@@ -1,1 +1,9 @@
-module.exports = require('@org/prettier-config')
+/** @type {import('prettier').Config} */
+const config = {
+  semi: false,
+  singleQuote: true,
+  trailingComma: 'all',
+  printWidth: 100,
+}
+
+module.exports = config

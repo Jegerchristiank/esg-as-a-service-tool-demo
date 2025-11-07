@@ -16,7 +16,6 @@ jobs:
     env:
       CI: true
       NEXT_TELEMETRY_DISABLED: '1'
-      TURBO_TELEMETRY_DISABLED: '1'
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
@@ -27,4 +26,4 @@ jobs:
           node-version: '20'
           cache: 'pnpm'
       - run: pnpm install --frozen-lockfile
-      - run: pnpm -w run ${{ matrix.task }}
+      - run: pnpm ${{ matrix.task }}
