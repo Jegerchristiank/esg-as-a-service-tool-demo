@@ -85,3 +85,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Ensured `next lint` bruger den understøttede TypeScript-version ved at fastlåse 5.5.4 gennem pnpm overrides.
 - Udvidede tooling-CLIens skemakonvertering til at forstå boolean- og array-typer, så GitHub CLI-testen lykkes for de nye E1-energifelter.
 - Forhindret tabte wizard-opdateringer ved at serialisere persistence-skrivninger med database-transaktioner og repository-koordination.
+- Hindret fejllogning fra Vercel Web Analytics og Speed Insights i lokale builds ved kun at initialisere integrationerne, når projekternes miljøvariabler er konfigureret.
