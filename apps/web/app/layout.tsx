@@ -27,11 +27,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }):
   const passwordCookie = cookieStore.get(PASSWORD_GATE_COOKIE_NAME)?.value
   const hasPasswordAccess = isPasswordCookieValid(passwordCookie)
   const isVercelAnalyticsEnabled =
-    process.env.NEXT_PUBLIC_ENABLE_VERCEL_ANALYTICS === 'true' ||
-    Boolean(process.env.NEXT_PUBLIC_VERCEL_ANALYTICS_ID ?? process.env.VERCEL_ANALYTICS_ID)
+    process.env['NEXT_PUBLIC_ENABLE_VERCEL_ANALYTICS'] === 'true' ||
+    Boolean(process.env['NEXT_PUBLIC_VERCEL_ANALYTICS_ID'] ?? process.env['VERCEL_ANALYTICS_ID'])
   const isVercelSpeedInsightsEnabled =
-    process.env.NEXT_PUBLIC_ENABLE_VERCEL_SPEED_INSIGHTS === 'true' ||
-    Boolean(process.env.NEXT_PUBLIC_VERCEL_SPEED_INSIGHTS_ID ?? process.env.VERCEL_SPEED_INSIGHTS_ID)
+    process.env['NEXT_PUBLIC_ENABLE_VERCEL_SPEED_INSIGHTS'] === 'true' ||
+    Boolean(process.env['NEXT_PUBLIC_VERCEL_SPEED_INSIGHTS_ID'] ?? process.env['VERCEL_SPEED_INSIGHTS_ID'])
 
   return (
     <html lang="da">
